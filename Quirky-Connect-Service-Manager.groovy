@@ -91,7 +91,8 @@ definition(
     description: "Connect your Quirky to SmartThings.",
     category: "My Apps",
     iconUrl: "https://s3.amazonaws.com/smartapp-icons/Partner/quirky.png",
-    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Partner/quirky@2x.png"
+    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Partner/quirky@2x.png",
+    oauth: true
 )
 
 mappings {
