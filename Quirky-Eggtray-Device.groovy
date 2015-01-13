@@ -1,106 +1,115 @@
- Welcome back, todd@wackford.net
-Logout
-My Locations
-My Hubs
-My Devices
-My SmartApps
-My Device Types
-My Publication Requests
-Live Logging
-Documentation
-Device Type Templates 
-Location
-
-Set Location
-Quirky Eggtray Save  Publish   IDE Settings  Device Type Settings
-
-1
 /**
-2
  *  Quirky Eggtray
-3
  *
-4
  *  Author: todd@wackford.net
-5
  *  Date: 2014-02-22
-6
  *
-7
  *****************************************************************
-8
  *     Setup Namespace, capabilities, attributes and commands
-9
  *****************************************************************
-10
- * Namespace:           "wackford"
-11
+ * Namespace:			"wackford"
  *
-12
- * Capabilities:        "polling"
-13
- *                      "refresh"
-14
+ * Capabilities:		"polling"
+ *						"refresh"
  *
-15
- * Custom Attributes:   "inventory"
-16
- *                      "totalEggs"
-17
- *                      "freshEggs"
-18
- *                      "oldEggs"
-19
- *                      "eggReport"
-20
+ * Custom Attributes:	"inventory"
+ *						"totalEggs"
+ *						"freshEggs"
+ *						"oldEggs"
+ *						"eggReport"
  *
-21
- * Custom Commands:     "eggReport"
-22
+ * Custom Commands:		"eggReport"
  *
-23
  *****************************************************************
-24
  *                       Changes
-25
  *****************************************************************
-26
- *  Change 1:   2014-02-26
-27
- *              Added egg report
-28
- *              implemented icons/tiles (thanks to Dane)
-29
+ *  Change 1:	2014-02-26
+ *				Added egg report
+ *				implemented icons/tiles (thanks to Dane)
  *
-30
- *  Change 2:   2014-03-10
-31
- *              Documented Header
-32
+ *  Change 2:	2014-03-10
+ *				Documented Header
  *
-33
- *  Change 3:   2014-09-30
-34
- *              added child uninstall call to parent
-35
+ *  Change 3:	2014-09-30
+ *				added child uninstall call to parent
  *
-36
  *****************************************************************
-37
  *                       Code
-38
  *****************************************************************
-39
  */
-40
  
-41
  // for the UI
-42
 metadata {
-43
-    // Automatically generated. Make future change here.
-44
-    definition (name: "Quirky Eggtray", namespace: "wackford", author: "todd@wackford.net", oauth: true) {
-45
-        capability "Refresh"
+	// Automatically generated. Make future change here.
+	definition (name: "Quirky Eggtray", namespace: "wackford", author: "todd@wackford.net", oauth: true) {
+		capability "Refresh"
+		capability "Polling"
+
+		attribute "inventory", "string"
+		attribute "totalEggs", "string"
+		attribute "freshEggs", "string"
+		attribute "oldEggs", "string"
+		attribute "eggReport", "string"
+
+		command "eggReport"
+	}
+
+
+	tiles {
+		standardTile("inventory", "device.inventory", width: 2, height: 2){
+        	state "goodEggs", label : "    ", unit : "" , icon:"st.quirky.egg-minder.quirky-egg-device", backgroundColor: "#53a7c0"
+            state "haveBadEgg", label : "    ", unit : "" , icon:"st.quirky.egg-minder.quirky-egg-device", backgroundColor: "#FF1919"
+            state "noEggs", label : "    ", unit : "" , icon:"st.quirky.egg-minder.quirky-egg-device", backgroundColor: "#ffffff"
+        }
+        standardTile("totalEggs", "device.totalEggs", inactiveLabel: false){
+        	state "totalEggs", label : '${currentValue}', unit : "" , icon:"st.quirky.egg-minder.quirky-egg-count", backgroundColor: "#53a7c0"
+        } 
+        standardTile("freshEggs", "device.freshEggs", inactiveLabel: false){
+        	state "freshEggs", label : '${currentValue}', unit : "" , icon:"st.quirky.egg-minder.quirky-egg-fresh", backgroundColor: "#53a7c0"
+        }
+        standardTile("oldEggs", "device.oldEggs", inactiveLabel: false){
+        	state "oldEggs", label : '${currentValue}', unit : "" , icon:"st.quirky.egg-minder.quirky-egg-expired", backgroundColor: "#53a7c0"
+        }
+        standardTile("eggReport", "device.eggReport", inactiveLabel: false, decoration: "flat"){
+        	state "eggReport", action: "eggReport", label : '    ', unit : "" , icon:"st.quirky.egg-minder.quirky-egg-report"
+        }
+        standardTile("refresh", "device.refresh", inactiveLabel: false, decoration: "flat") {
+			state "default", action:"refresh.refresh", icon:"st.secondary.refresh"
+		}     
+	}
+
+	main(["inventory", "totalEggs", "freshEggs", "oldEggs"])
+    details(["inventory", "eggReport", "refresh", "totalEggs", "freshEggs", "oldEggs"])
+    
+}
+
+// parse events into attributes
+def parse(description) {
+	log.debug "parse() - $description"
+	def results = []
+
+	if (description?.name && description?.value)
+	{
+		results << sendEvent(name: "${description?.name}", value: "${description?.value}")
+	}
+}
+
+def eggReport() {
+	log.debug "Executing Egg Report"
+    parent.runEggReport(this)
+}
+
+def uninstalled() {
+	log.debug "Executing 'uninstall' in child"
+    parent.uninstallChildDevice(this)
+}
+
+def poll() {
+	log.debug "Executing 'poll'"
+	parent.getEggtrayUpdate(this)
+}
+
+def refresh() {
+	log.debug "Executing 'refresh'"
+	parent.getEggtrayUpdate(this)
+}
