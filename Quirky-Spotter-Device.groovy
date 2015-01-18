@@ -45,7 +45,7 @@ metadata {
 		capability "Polling"
 		capability "Refresh"
 		capability "Battery"
-		capability "Motion Sensor"
+		//capability "Motion Sensor" // does not do motion like PIR
 		capability "Acceleration Sensor"
 		capability "Relative Humidity Measurement"
 
